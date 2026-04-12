@@ -15,7 +15,7 @@ const { journalEntries = [] } = Astro.props;
   <!-- Card -->
   <div
     id="popup-card"
-    class="popup-scroll relative bg-white rounded-3xl w-full max-w-lg sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col"
+    class="popup-scroll relative bg-white rounded-3xl w-full max-w-lg sm:max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col"
   >
 
     <!-- Close button -->
@@ -71,14 +71,6 @@ const { journalEntries = [] } = Astro.props;
 
     <!-- ── PCB tab ─────────────────────────────────────── -->
     <div id="panel-pcb" class="flex flex-col gap-4 px-7 py-5">
-
-      <!-- 3D viewer -->
-      <div>
-        <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">3D Viewer</p>
-        <div id="pcb-viewer-wrap" class="aspect-video bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center text-zinc-400 text-sm">
-          No PCB viewer URL provided
-        </div>
-      </div>
 
       <!-- Schematics -->
       <div>
@@ -191,7 +183,7 @@ const { journalEntries = [] } = Astro.props;
     images.forEach((src, i) => {
       const img = document.createElement("img");
       img.src   = src;
-      img.className = "w-full h-full object-cover shrink-0";
+      img.className = "w-full h-full object-contain shrink-0";
       track.appendChild(img);
 
       const dot = document.createElement("button");
@@ -222,17 +214,15 @@ const { journalEntries = [] } = Astro.props;
   function carouselGo(i)  { _carouselIndex = i; _updateCarousel(); }
 
   // ── PCB panels ───────────────────────────────────────
-  function _buildPCBPanels(pcbUrl, schematicsUrl) {
-    const viewerWrap    = document.getElementById("pcb-viewer-wrap");
+  function _buildPCBPanels(glbUrl, schematicsUrl) {
     const schematicsWrap = document.getElementById("schematics-wrap");
 
-    viewerWrap.innerHTML = pcbUrl
-      ? `<iframe src="${pcbUrl}" class="w-full h-full border-0" allowfullscreen title="3D PCB Viewer"></iframe>`
-      : `<span class="text-zinc-400 text-sm">No PCB viewer URL provided</span>`;
-
-    schematicsWrap.innerHTML = schematicsUrl
-      ? `<iframe src="${schematicsUrl}" class="w-full h-full border-0" title="Schematics"></iframe>`
-      : `<span class="text-zinc-400 text-sm">No schematics URL provided</span>`;
+    if (schematicsUrl) {
+      const sep = schematicsUrl.includes("?") ? "&" : "#";
+      schematicsWrap.innerHTML = `<iframe src="${schematicsUrl}${sep}toolbar=0&navpanes=0&scrollbar=0" class="w-full h-full border-0" title="Schematics"></iframe>`;
+    } else {
+      schematicsWrap.innerHTML = `<span class="text-zinc-400 text-sm">No schematics URL provided</span>`;
+    }
   }
 
   // ── Journal (dynamic rebuild) ─────────────────────────
