@@ -1,0 +1,31 @@
+---
+const { date, text, videoUrl, index } = Astro.props;
+---
+
+<div class="flex gap-4 items-start py-5 border-b border-zinc-100 last:border-0">
+
+  <!-- Left: Journal text -->
+  <div class="flex-1 min-w-0">
+    <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">
+      Entry {index + 1}{date ? ` · ${date}` : ""}
+    </p>
+    <p class="text-sm text-zinc-600 leading-relaxed">{text}</p>
+  </div>
+
+  <!-- Right: Build video thumbnail -->
+  {videoUrl && (
+    <div class="shrink-0 w-36">
+      <div class="aspect-video bg-zinc-100 rounded-xl overflow-hidden">
+        <iframe
+          src={videoUrl}
+          class="w-full h-full"
+          allow="autoplay; fullscreen"
+          allowfullscreen
+          title={`Build video ${index + 1}`}
+        />
+      </div>
+      <p class="text-xs text-zinc-400 text-center mt-1">Build video {index + 1}</p>
+    </div>
+  )}
+
+</div>

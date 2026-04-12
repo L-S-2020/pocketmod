@@ -1,0 +1,126 @@
+---
+import "../styles/global.css";
+import Sidebar from "../components/sidebar.astro";
+import MarkdownRenderer from "../components/MarkdownRenderer.astro";
+import Gallery from "../components/gallery.astro";
+import Shop from "../components/shop.astro";
+
+interface DocModule {
+  default: any;
+}
+
+// Astro eagerly imports all markdown files at build time
+const modules = import.meta.glob<DocModule>("./docs/*.md", { eager: true });
+
+const docs = [
+  { slug: "introduction", label: "Introduction",  mod: modules["./docs/introduction.md"] },
+  { slug: "my_first_PCB", label: "My first PCB",  mod: modules["./docs/my_first_PCB.md"] },
+  { slug: "resources",    label: "Resources",      mod: modules["./docs/resources.md"]    },
+].filter((d) => d.mod);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Pocketmod | Guides</title>
+  </head>
+
+  <body class="bg-white text-zinc-900 min-h-screen">
+
+    <Sidebar />
+
+    <!-- Content area: offset by sidebar width on desktop, top bar on mobile -->
+    <div class="sm:pl-64 pt-14 sm:pt-0 min-h-screen flex flex-col">
+      <main class="flex-1 w-full">
+
+        <!-- Doc sections: centered, max-width constrained -->
+        {docs.map(({ slug, mod }) => (
+          <section id={`doc-${slug}`} class="doc-section hidden px-8 sm:px-16 py-12 max-w-4xl mx-auto">
+            <MarkdownRenderer Content={mod.default} />
+          </section>
+        ))}
+
+        <!-- Gallery section: full width, uses its own internal layout -->
+        <section id="doc-gallery" class="doc-section hidden">
+          <Gallery />
+        </section>
+
+        <!-- Shop section: full width, uses its own internal layout -->
+        <section id="doc-shop" class="doc-section hidden">
+            <Shop />
+        </section>
+
+      </main>
+
+      <footer class="py-8 px-6 bg-zinc-950 text-center text-zinc-600 text-sm mt-auto">
+        Made with <span class="text-[#ec3750]">♥</span> by @leost ·
+        Hopefully soon @<a href="https://hackclub.com" class="hover:text-zinc-400 transition-colors underline underline-offset-2">Hack Club</a> HQ ;)
+      </footer>
+    </div>
+
+  </body>
+</html>
+
+<script>
+  const SLUGS = ["introduction", "my_first_PCB", "resources", "gallery", "shop"];
+
+  function activate(slug: string) {
+    // Show/hide content sections
+    document.querySelectorAll<HTMLElement>(".doc-section").forEach((s) => {
+      s.classList.toggle("hidden", s.id !== `doc-${slug}`);
+    });
+
+    // Update sidebar active styles
+    document.querySelectorAll<HTMLAnchorElement>(".doc-link").forEach((a) => {
+      const isActive = a.dataset.doc === slug;
+      a.classList.toggle("bg-[#ec3750]/8", isActive);
+      a.classList.toggle("hover:bg-zinc-100", !isActive);
+
+      const dot = a.querySelector<HTMLElement>(".doc-dot");
+      if (dot) {
+        dot.classList.toggle("bg-[#ec3750]", isActive);
+        dot.classList.toggle("bg-zinc-300", !isActive);
+      }
+
+      const label = a.querySelector<HTMLElement>("span:last-child");
+      if (label) {
+        label.classList.toggle("font-semibold", isActive);
+        label.classList.toggle("text-zinc-900",  isActive);
+        label.classList.toggle("font-medium",    !isActive);
+        label.classList.toggle("text-zinc-500",  !isActive);
+      }
+    });
+
+    // Sync URL hash without triggering another hashchange
+    history.replaceState(null, "", `#${slug}`);
+
+    // Close mobile sidebar after navigation
+    document.getElementById("sidebar")?.classList.add("-translate-x-full");
+    document.getElementById("backdrop")?.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+  }
+
+  // Read hash on load
+  const initial = SLUGS.includes(location.hash.slice(1))
+    ? location.hash.slice(1)
+    : SLUGS[0];
+  activate(initial);
+
+  // Browser back/forward
+  window.addEventListener("hashchange", () => {
+    const h = location.hash.slice(1);
+    if (SLUGS.includes(h)) activate(h);
+  });
+
+  // Sidebar link clicks
+  document.querySelectorAll<HTMLAnchorElement>(".doc-link").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const slug = a.dataset.doc!;
+      if (SLUGS.includes(slug)) activate(slug);
+    });
+  });
+</script>

@@ -1,0 +1,180 @@
+---
+
+---
+
+<div class="w-full flex flex-col gap-5">
+
+
+    <p
+    id="idea-output"
+    class="min-h-16 rounded-2xl bg-black/15 border border-white/10 px-6 py-4 text-base leading-relaxed text-zinc-600 text-center"
+    aria-live="polite"
+  >
+    <span class="text-zinc-600">Hmmmmmmmmmm......</span>
+    <span id="idea-caret" class="inline-block w-px h-4 bg-zinc-500 align-[-2px] ml-0.5 animate-pulse"></span>
+  </p>
+  
+  <div class="flex justify-center">
+    <button
+      id="generate-idea-btn"
+      type="button"
+      class="group bg-white text-zinc-900 font-black text-lg px-8 py-4 rounded-2xl hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)] transition-all cursor-pointer flex items-center gap-3"
+    >
+      Generate idea
+    </button>
+  </div>
+
+  
+</div>
+
+<script lang="js">
+const ideas = [
+  "A dongle that monitors your posture via an accelerometer and flashes red when you slouch.",
+  "A USB stick that acts as a hardware password vault, typing stored credentials on button press.",
+  "A tiny USB oscilloscope with two channels for quick signal debugging on the go.",
+  "A dongle that bridges two Zigbee smart home devices without needing a cloud gateway.",
+  "A USB CO2 sensor that logs air quality and reminds you to open a window.",
+  "A hardware TOTP authenticator that generates and types 2FA codes with one click.",
+  "A USB-to-UART adapter with auto baud-rate detection and status LEDs.",
+  "A dongle that acts as a USB-to-I2C/SPI bridge for prototyping without a full dev board.",
+  "A tiny USB logic analyzer that captures 8 channels and streams data to Sigrok.",
+  "A USB power meter that logs voltage and current draw of connected devices to a CSV.",
+  "A dongle that serves as a hardware firewall, filtering USB packets between device and host.",
+  "A USB Wi-Fi deauther detector that blinks when someone is jamming nearby networks.",
+  "A programmable macro pad with a rotary encoder for volume, scroll, or timeline scrubbing.",
+  "A USB GPS receiver that feeds location data to mapping software on your laptop.",
+  "A dongle that reads NFC tags and types their content as keyboard input.",
+  "A USB CAN bus adapter for reading your car's OBD-II data directly on a laptop.",
+  "A dongle that monitors ambient noise levels and displays a real-time dB meter on an OLED.",
+  "A USB frequency counter that measures signals up to 50 MHz with 1 Hz resolution.",
+  "A hardware random number generator using thermal noise, accessible as a USB serial device.",
+  "A dongle with an IR blaster that turns your laptop into a universal remote control.",
+  "A dongle that types a random excuse into any chat when you press the panic button.",
+  "A USB stick with a tiny OLED that shows a pixel art pet you have to keep alive by coding.",
+  "A dongle that plays the Windows XP startup sound through a built-in piezo speaker on boot.",
+  "A rage quit button that sends Alt+F4 and flashes dramatic red LEDs.",
+  "A USB stick that randomly rickrolls you by opening a browser tab once per day.",
+  "A dongle with a slot machine display — three tiny LEDs spin when you press the button.",
+  "A USB stick that counts your daily keystrokes and displays your typing high score on an OLED.",
+  "A dongle that translates Morse code tapped on a button into typed text.",
+  "A tiny USB synth with three pots that generates lo-fi ambient drone sounds.",
+  "A dongle with a built-in microphone that reacts to claps by toggling mute in video calls.",
+  "A USB fidget board with a clickable encoder, slider, and tactile button that do absolutely nothing.",
+  "A dongle that measures your desk vibrations and graphs your typing intensity over time.",
+  "A USB stick that displays the current Bitcoin price on a tiny e-ink screen, updating every hour.",
+  "A dongle with an RGB LED that changes color based on your CPU temperature.",
+  "A USB compliment generator that types a random nice message when you plug it in.",
+  "A dongle with a motion sensor that locks your screen when you walk away from your desk.",
+  "A USB stick shaped like a tiny guitar that plays power chords when you press fret buttons.",
+  "A dongle that blinks an LED in your heartbeat rhythm using a pulse sensor on the PCB.",
+  "A USB reaction time tester — LED lights up randomly, press the button as fast as you can.",
+  "A dongle that tracks how long you've been sitting and buzzes every 45 minutes to stand up.",
+  "A USB weather station that measures temperature, humidity, and barometric pressure.",
+  "A dongle with a UV sensor that tells you if you need sunscreen today.",
+  "A USB stick that monitors ambient light and auto-suggests screen brightness adjustments.",
+  "A dongle with a particulate matter sensor for monitoring air pollution at your desk.",
+  "A USB soil moisture probe for your desk plant that shows a sad face LED when it's thirsty.",
+  "A dongle with a gas sensor that detects if someone microwaved fish in the office.",
+  "A USB stick with a magnetometer that detects nearby magnets and electromagnetic fields.",
+  "A dongle with a microphone that analyzes room acoustics and suggests speaker placement.",
+  "A USB color sensor that reads any physical color and copies the hex code to your clipboard.",
+  "A dongle that measures the tilt angle of your laptop screen and logs ergonomic data.",
+  "A LoRa messenger dongle for sending text messages up to 2 km without internet.",
+  "A USB Bluetooth-to-Serial bridge for connecting legacy devices to modern laptops.",
+  "A dongle that creates a mesh network between multiple Pocketmod users via 2.4 GHz radio.",
+  "A USB infrared transceiver for communicating between laptops like the 90s.",
+  "A dongle that receives pager-frequency messages and displays them on an OLED.",
+  "A USB amateur radio APRS receiver for tracking nearby ham radio stations.",
+  "A dongle that sniffs 433 MHz signals from cheap weather stations and decodes them.",
+  "A USB ADS-B receiver that tracks airplanes overhead and shows them on a map.",
+  "A LoRa GPS tracker dongle that shares your location with friends on a hike, no cell needed.",
+  "A dongle that bridges your laptop to a DECT phone system for VoIP calls.",
+  "A USB notification light that glows different colors for email, Slack, and calendar alerts.",
+  "A dongle with a tiny TFT that shows your current Spotify track and album art.",
+  "A USB LED matrix badge that scrolls custom text you type in a companion app.",
+  "A dongle with an e-ink display showing your daily agenda pulled from Google Calendar.",
+  "A USB VU meter with a row of LEDs that bounce to your system audio output.",
+  "A dongle that projects a tiny clock onto your desk using a laser diode and spinning mirror.",
+  "A USB stick with a 7-segment display showing your unread email count in real time.",
+  "A dongle with an OLED that displays ASCII art animations as a screensaver.",
+  "A USB lava lamp simulator using a strip of addressable LEDs in a frosted tube.",
+  "A dongle with an LED ring that acts as a countdown timer you control from the keyboard.",
+  "A USB MIDI controller with four velocity-sensitive pads for finger drumming.",
+  "A dongle that converts your keyboard into a piano — each key row plays a different octave.",
+  "A USB audio spectrum analyzer that visualizes your music on an 8x8 LED matrix.",
+  "A dongle metronome with a haptic motor that taps the beat into your desk silently.",
+  "A USB white noise generator with a dial for switching between rain, static, and fan sounds.",
+  "A dongle that records short audio memos and plays them back on button press.",
+  "A USB theremin — a distance sensor controls pitch, played through your laptop speakers.",
+  "A dongle with a tiny speaker that plays notification sounds so you can mute your laptop.",
+  "A USB beat detector that flashes LEDs in sync with whatever music your laptop is playing.",
+  "A dongle that generates DTMF tones for old-school phone phreaking demonstrations.",
+  "A USB kill switch that instantly encrypts or unmounts a specific drive when pressed.",
+  "A dongle that detects evil-maid attacks by monitoring if your laptop was opened while away.",
+  "A USB hardware keylogger detector that alerts you if an unknown HID device connects.",
+  "A dongle with a physical write-protect switch for safe USB drive usage on untrusted PCs.",
+  "A USB entropy dongle that feeds true random data to your OS for cryptographic operations.",
+  "A dongle that monitors USB port voltage for signs of juice-jacking at public charging stations.",
+  "A USB rubber ducky detector that identifies suspiciously fast HID keystroke injection.",
+  "A dongle with a secure element chip for storing SSH keys with physical touch confirmation.",
+  "A USB network traffic indicator that blinks when your laptop sends data you didn't initiate.",
+  "A dongle that generates and displays one-time pad codes on a tiny screen for secret notes.",
+  "A USB breathalyzer that estimates your BAC and types passive-aggressive warnings.",
+  "A dongle that measures the magnetic field of your laptop and visualizes it as a 3D plot.",
+  "A USB stick that acts as a tiny web server hosting your personal homepage from the dongle.",
+  "A dongle with a Geiger counter that logs background radiation levels to a spreadsheet.",
+  "A USB EMF detector that beeps near electronics — marketed as a ghost detector.",
+  "A dongle that runs a neural network on an RP2040 to classify sounds as productive or not.",
+  "A USB stick that stores one file, encrypted, only unlockable by solving a puzzle on the OLED.",
+  "A dongle that vibrates stronger the closer your compile is to finishing, like a suspense buzzer.",
+  "A USB lie detector with a galvanic skin response sensor on a finger clip.",
+  "A dongle that does absolutely nothing but has a very satisfying click button and a blinking LED.",
+];
+
+const allIdeas = [...ideas];
+let isTyping = false;
+
+function getNextIdea() {
+  if (ideas.length === 0) {
+    ideas.push(...allIdeas);
+  }
+
+  const randomIndex = Math.floor(Math.random() * ideas.length);
+  return ideas.splice(randomIndex, 1)[0];
+}
+
+function typeText(element, text, caret) {
+  if (!element || !caret) return;
+
+  isTyping = true;
+  element.textContent = "";
+  element.appendChild(caret);
+
+  let index = 0;
+  const typeInterval = setInterval(() => {
+    if (index >= text.length) {
+      clearInterval(typeInterval);
+      isTyping = false;
+      return;
+    }
+
+    const nextChar = document.createTextNode(text[index]);
+    element.insertBefore(nextChar, caret);
+    index += 1;
+  }, 22);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("generate-idea-btn");
+  const output = document.getElementById("idea-output");
+  const caret = document.getElementById("idea-caret");
+
+  if (!button || !output || !caret) return;
+
+  button.addEventListener("click", () => {
+    if (isTyping) return;
+    const nextIdea = getNextIdea();
+    typeText(output, nextIdea, caret);
+  });
+});
+</script>

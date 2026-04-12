@@ -1,0 +1,22 @@
+---
+import { Image } from "astro:assets";
+
+const { title, description, image, maker } = Astro.props;
+
+---
+
+<div
+  class="group bg-zinc-100 rounded-3xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer"
+  data-title={title}
+  data-description={description}
+  data-maker={maker}
+  data-image={image ?? ""}
+  onclick="openPopup(this.dataset.title, this.dataset.description, this.dataset.maker, this.dataset.image ? [this.dataset.image] : [], null)"
+>
+  <Image src={image} alt={title} width="400" height="300" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" />
+  <div class="p-6">
+    <h2 class="text-xl font-bold mb-2">{title}</h2>
+    <p class="text-gray-400 text-sm">{description}</p>
+    <p class="text-zinc-500 text-sm mt-2">by {maker}</p>
+  </div>
+</div>

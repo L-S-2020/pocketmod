@@ -1,0 +1,119 @@
+---
+import "../styles/global.css";
+import ShopCard from "../components/shop_card.astro";
+
+const items: { title: string; description: string; image: string | null; price: number }[] = [
+  {
+    title: "PINECIL v2",
+    description: "A cool mini soldering iron, should not be used for heating tea water.",
+    image: "https://user-cdn.hackclub-assets.com/019d7f89-ba54-744d-98d2-2d1a93749907/pinecil.webp",
+    price: 45,
+  },
+  {
+    title: "ST Link v2 (Clone)",
+    description: "A useful small programmer/debugger, can't be used to hack your own stove... yet.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fba-9fe7-7567-8829-1305db2b8f63/71onKEI7MJL._SL1500_.png",
+    price: 10,
+  },
+  {
+    title: "Soldering Hot Plate",
+    description: "A hot place for soldering your pocketmod PCBs on, maybe also useful for making grilled cheese sandwiches.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fba-4db4-79ce-bb04-1ddb27366721/516WaMu9OnL._AC_SL1000_.png",
+    price: 35,
+  },
+  {
+    title: "Hack Club Sticker Pack",
+    description: "A bunch of Hack Club stickers for your laptop, water bottle or whatever. Not edible, but they look cool.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fbd-139a-7b66-8b31-2d27672fe5dd/pile_of_stickers.webp",
+    price: 4.5,
+  },
+  {
+    title: "Raspberry Pi Zero 2 W",
+    description: "Small but mighty computer",
+    image: "https://user-cdn.hackclub-assets.com/019d7fcc-126f-7e70-a1b0-37477f913f80/zero2-hero.webp",
+    price: 35,
+  },
+  {
+    title: "Raspberry Pi Pico 2",
+    description: "The RP2350-based Pico 2 — perfect for thinkering things out.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fce-1c9a-7db8-b7df-f814f75aab98/pico-2.webp",
+    price: 15,
+  },
+  {
+    title: "Multimeter",
+    description: "A useful tool for measuring voltage, current, and resistance. Also works great as a paperweight.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fd7-e30b-780b-9af1-173192e14ac4/81ma9HatWsL._SL1500_.png",
+    price: 25,
+  },
+  {
+    title: "Desoldering Kit",
+    description: "A kit for removing solder, perfect for fixing mistakes or salvaging components. Not recommended for removing chewing gum from under desks.",
+    image: "https://user-cdn.hackclub-assets.com/019d7fdb-aa75-7700-86c0-a857cd45b897/61cM03nPOvL._AC_SL1500_.png",
+    price: 25,
+  },
+];
+---
+
+<!-- ═══════════════════════════════════════════════════ HEADER -->
+<section id="shop-hero" class="bg-white pt-16 pb-12 px-6 relative overflow-hidden">
+  <!-- Grid background -->
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:48px_48px]"></div>
+  <div id="shop-grid-dark" class="absolute inset-0 pointer-events-none" style="background-size:48px 48px; background-image: linear-gradient(rgba(0,0,0,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.18) 1px, transparent 1px);"></div>
+  <div class="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto flex flex-col gap-3">
+    <div>
+      <h1 class="text-6xl font-black tracking-tight">The Shop</h1>
+        <p class="text-zinc-500 text-lg mt-2">Stuff subject to change</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ GRID -->
+<section class="py-12 px-6 bg-white">
+  <div class="max-w-4xl mx-auto">
+    {items.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {items.map((item) => (
+          <ShopCard
+            title={item.title}
+            description={item.description}
+            image={item.image}
+            price={item.price}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="flex flex-col items-center justify-center py-32 gap-5 text-center">
+        <div class="w-20 h-20 rounded-3xl bg-zinc-100 flex items-center justify-center text-4xl">🛒</div>
+        <div>
+          <h2 class="text-2xl font-black mb-2">Shop coming soon</h2>
+          <p class="text-zinc-500">Items will appear here once the program launches.</p>
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const darkGrid = document.getElementById("shop-grid-dark");
+    const hero     = document.getElementById("shop-hero");
+    if (!darkGrid || !hero) return;
+
+    const D = darkGrid as HTMLElement;
+    const RADIUS = 160;
+
+    hero.addEventListener("mousemove", (e: MouseEvent) => {
+      const rect = hero.getBoundingClientRect();
+      D.style.maskImage = `radial-gradient(circle ${RADIUS}px at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, black 0%, transparent 100%)`;
+    });
+
+    hero.addEventListener("mouseleave", () => {
+      D.style.maskImage = `radial-gradient(circle 0px at -9999px -9999px, black 0%, transparent 0%)`;
+    });
+
+    D.style.maskImage = `radial-gradient(circle 0px at -9999px -9999px, black 0%, transparent 0%)`;
+  });
+</script>

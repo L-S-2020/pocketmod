@@ -1,0 +1,88 @@
+---
+import "../styles/global.css";
+import GalleryCard from "../components/gallery_card.astro";
+import ProjectPopup from "../components/project_popup.astro";
+
+const entries: { title: string; description: string; image: string | null; maker: string }[] = [
+  // Add real entries here as the program grows
+  {
+	title: "Sample Pocketmod",
+	description: "A sample pocketmod built by the community.",
+	image: "/path/to/sample-image.jpg", // Replace with actual image path or URL
+	maker: "Jane Doe"}
+];
+---
+
+    <!-- ═══════════════════════════════════════════════════ HEADER -->
+    <section id="gallery-hero" class="bg-white pt-16 pb-12 px-6 relative overflow-hidden">
+      <!-- Grid background: static -->
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:48px_48px]"></div>
+      <!-- Grid: darker circle around mouse -->
+      <div id="gallery-grid-dark" class="absolute inset-0 pointer-events-none" style="background-size:48px 48px; background-image: linear-gradient(rgba(0,0,0,0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.18) 1px, transparent 1px);"></div>
+      <!-- Bottom fade -->
+      <div class="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-4xl mx-auto flex flex-col gap-6">
+        <div>
+          <h1 class="text-6xl font-black tracking-tight">Gallery</h1>
+          <p class="text-zinc-500 text-lg mt-2"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════ GRID -->
+    <section class="py-16 px-6 bg-white">
+      <div class="max-w-4xl mx-auto">
+        {entries.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {entries.map((entry) => (
+              <GalleryCard
+                title={entry.title}
+                description={entry.description}
+                image={entry.image}
+                maker={entry.maker}
+              />
+            ))}
+          </div>
+        ) : (
+          <!-- Empty state -->
+          <div class="flex flex-col items-center justify-center py-32 gap-5 text-center">
+            <div class="w-20 h-20 rounded-3xl bg-zinc-100 flex items-center justify-center text-4xl">🔌</div>
+            <div>
+              <h2 class="text-2xl font-black mb-2">No submissions yet</h2>
+              <p class="text-zinc-500">Be the first to build a pocketmod and show up here.</p>
+            </div>
+            <a
+              href="/"
+              class="bg-[#ec3750] hover:bg-[#d42f45] text-white font-bold px-7 py-3 rounded-2xl transition-all hover:scale-105"
+            >Sign up →</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+<ProjectPopup title="" description="" maker="" images={[]} />
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const darkGrid = document.getElementById("gallery-grid-dark");
+    const hero     = document.getElementById("gallery-hero");
+    if (!darkGrid || !hero) return;
+
+    const D: HTMLElement = darkGrid;
+    const RADIUS = 160;
+
+    hero.addEventListener("mousemove", (e: MouseEvent) => {
+      const rect = hero.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      D.style.maskImage = `radial-gradient(circle ${RADIUS}px at ${mx}px ${my}px, black 0%, transparent 100%)`;
+    });
+
+    hero.addEventListener("mouseleave", () => {
+      D.style.maskImage = `radial-gradient(circle 0px at -9999px -9999px, black 0%, transparent 0%)`;
+    });
+
+    D.style.maskImage = `radial-gradient(circle 0px at -9999px -9999px, black 0%, transparent 0%)`;
+  });
+</script>

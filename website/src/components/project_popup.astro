@@ -1,0 +1,265 @@
+---
+import JournalEntry from "./JournalEntry.astro";
+
+// All popup content is set dynamically via openPopup() — only journalEntries
+// is used for the static SSR fallback render in the Buildprocess panel.
+const { journalEntries = [] } = Astro.props;
+---
+
+<!-- Backdrop -->
+<div
+  id="popup-backdrop"
+  class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+  onclick="closePopup()"
+>
+  <!-- Card -->
+  <div
+    id="popup-card"
+    class="popup-scroll relative bg-white rounded-3xl w-full max-w-lg sm:max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col"
+  >
+
+    <!-- Close button -->
+    <button
+      onclick="closePopup()"
+      class="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl bg-zinc-100 hover:bg-zinc-200 flex items-center justify-center transition-colors"
+      aria-label="Close"
+    >
+      <svg class="w-4 h-4 text-zinc-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- ── Carousel ───────────────────────────────────── -->
+    <div id="popup-media" class="w-full aspect-video bg-zinc-100 rounded-t-3xl overflow-hidden relative shrink-0">
+      <div id="carousel-track" class="flex h-full transition-transform duration-300"></div>
+
+      <!-- Arrows (shown when >1 image) -->
+      <button id="carousel-prev" onclick="carouselPrev()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors" aria-label="Previous">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button id="carousel-next" onclick="carouselNext()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white/80 hover:bg-white flex items-center justify-center shadow transition-colors" aria-label="Next">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <!-- Dots -->
+      <div id="carousel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5"></div>
+
+      <!-- Fallback when no images -->
+      <div id="carousel-empty" class="hidden w-full h-full items-center justify-center text-zinc-400 text-sm">No media yet</div>
+    </div>
+
+    <!-- ── Info ───────────────────────────────────────── -->
+    <div class="px-7 pt-5 pb-3">
+      <h2 id="popup-title"       class="text-2xl font-black tracking-tight text-zinc-900"></h2>
+      <p  id="popup-description" class="text-sm font-semibold text-zinc-700 mt-1"></p>
+      <p  id="popup-maker"       class="text-sm text-zinc-400 mt-0.5"></p>
+    </div>
+
+    <!-- ── Tab bar ────────────────────────────────────── -->
+    <div class="px-7 border-b border-zinc-200 flex gap-6 text-center">
+      <button
+        id="tab-pcb"
+        onclick="switchTab('pcb')"
+        class="tab-btn py-3 text-sm font-black border-b-2 border-zinc-900 text-zinc-900 -mb-px transition-colors"
+      >PCB</button>
+      <button
+        id="tab-build"
+        onclick="switchTab('build')"
+        class="tab-btn py-3 text-sm font-medium border-b-2 border-transparent text-zinc-400 hover:text-zinc-700 -mb-px transition-colors"
+      >Buildprocess</button>
+    </div>
+
+    <!-- ── PCB tab ─────────────────────────────────────── -->
+    <div id="panel-pcb" class="flex flex-col gap-4 px-7 py-5">
+
+      <!-- 3D viewer -->
+      <div>
+        <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">3D Viewer</p>
+        <div id="pcb-viewer-wrap" class="aspect-video bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center text-zinc-400 text-sm">
+          No PCB viewer URL provided
+        </div>
+      </div>
+
+      <!-- Schematics -->
+      <div>
+        <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Schematics</p>
+        <div id="schematics-wrap" class="aspect-video bg-zinc-100 rounded-2xl overflow-hidden flex items-center justify-center text-zinc-400 text-sm">
+          No schematics URL provided
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Buildprocess tab ────────────────────────────── -->
+    <div id="panel-build" class="hidden px-7 py-5">
+      <div id="journal-list">
+        {journalEntries.length > 0
+          ? journalEntries.map((entry: { date: string; text: string; videoUrl: string }, i: number) => (
+              <JournalEntry date={entry.date} text={entry.text} videoUrl={entry.videoUrl} index={i} />
+            ))
+          : <p class="text-sm text-zinc-400 py-6 text-center">No journal entries yet.</p>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .popup-scroll::-webkit-scrollbar             { width: 5px; }
+  .popup-scroll::-webkit-scrollbar-track       { background: transparent; }
+  .popup-scroll::-webkit-scrollbar-thumb       { background: #d4d4d8; border-radius: 99px; }
+  .popup-scroll::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+  .popup-scroll { scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent; }
+</style>
+
+<script is:inline>
+  // ── State ────────────────────────────────────────────
+  let _images        = [];
+  let _carouselIndex = 0;
+  let _journalData   = [];   // [{ date, text, videoUrl }]
+
+  // ── Open / Close ─────────────────────────────────────
+  function openPopup(title, description, maker, images, _video, pcbViewerUrl, schematicsUrl, journalEntries) {
+    document.getElementById("popup-title").textContent       = title       ?? "";
+    document.getElementById("popup-description").textContent = description ?? "";
+    document.getElementById("popup-maker").textContent       = maker ? "by " + maker : "";
+
+    _images      = images        ?? [];
+    _journalData = journalEntries ?? [];
+
+    _buildCarousel(_images);
+    _buildJournal(_journalData);
+    _buildPCBPanels(pcbViewerUrl, schematicsUrl);
+
+    switchTab("pcb");
+
+    document.getElementById("popup-backdrop").classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  }
+
+  function closePopup() {
+    document.getElementById("popup-backdrop").classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+  }
+
+  // Stop backdrop-click from closing when clicking the card itself
+  document.getElementById("popup-card").addEventListener("click", (e) => e.stopPropagation());
+
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePopup(); });
+
+  // ── Tabs ─────────────────────────────────────────────
+  function switchTab(tab) {
+    const isPCB = tab === "pcb";
+
+    document.getElementById("panel-pcb").classList.toggle("hidden",   !isPCB);
+    document.getElementById("panel-build").classList.toggle("hidden",  isPCB);
+
+    const activeClass   = ["border-zinc-900", "text-zinc-900", "font-black"];
+    const inactiveClass = ["border-transparent", "text-zinc-400", "font-medium"];
+
+    const pcbBtn   = document.getElementById("tab-pcb");
+    const buildBtn = document.getElementById("tab-build");
+
+    activeClass.forEach(c   => pcbBtn.classList.toggle(c,   isPCB));
+    inactiveClass.forEach(c => pcbBtn.classList.toggle(c,  !isPCB));
+    activeClass.forEach(c   => buildBtn.classList.toggle(c,  !isPCB));
+    inactiveClass.forEach(c => buildBtn.classList.toggle(c,   isPCB));
+  }
+
+  // ── Carousel ─────────────────────────────────────────
+  function _buildCarousel(images) {
+    const track  = document.getElementById("carousel-track");
+    const dots   = document.getElementById("carousel-dots");
+    const empty  = document.getElementById("carousel-empty");
+    const prev   = document.getElementById("carousel-prev");
+    const next   = document.getElementById("carousel-next");
+
+    track.innerHTML = "";
+    dots.innerHTML  = "";
+    _carouselIndex  = 0;
+
+    if (!images || images.length === 0) {
+      empty.classList.replace("hidden", "flex");
+      prev.classList.add("hidden");
+      next.classList.add("hidden");
+      return;
+    }
+
+    empty.classList.replace("flex", "hidden");
+
+    images.forEach((src, i) => {
+      const img = document.createElement("img");
+      img.src   = src;
+      img.className = "w-full h-full object-cover shrink-0";
+      track.appendChild(img);
+
+      const dot = document.createElement("button");
+      dot.className = "carousel-dot w-1.5 h-1.5 rounded-full transition-colors " + (i === 0 ? "bg-white" : "bg-white/50");
+      dot.setAttribute("aria-label", `Slide ${i + 1}`);
+      dot.onclick = () => carouselGo(i);
+      dots.appendChild(dot);
+    });
+
+    const multi = images.length > 1;
+    prev.classList.toggle("hidden", !multi);
+    next.classList.toggle("hidden", !multi);
+
+    _updateCarousel();
+  }
+
+  function _updateCarousel() {
+    const track = document.getElementById("carousel-track");
+    if (track) track.style.transform = `translateX(-${_carouselIndex * 100}%)`;
+    document.querySelectorAll(".carousel-dot").forEach((d, i) => {
+      d.classList.toggle("bg-white",    i === _carouselIndex);
+      d.classList.toggle("bg-white/50", i !== _carouselIndex);
+    });
+  }
+
+  function carouselNext() { _carouselIndex = (_carouselIndex + 1) % _images.length; _updateCarousel(); }
+  function carouselPrev() { _carouselIndex = (_carouselIndex - 1 + _images.length) % _images.length; _updateCarousel(); }
+  function carouselGo(i)  { _carouselIndex = i; _updateCarousel(); }
+
+  // ── PCB panels ───────────────────────────────────────
+  function _buildPCBPanels(pcbUrl, schematicsUrl) {
+    const viewerWrap    = document.getElementById("pcb-viewer-wrap");
+    const schematicsWrap = document.getElementById("schematics-wrap");
+
+    viewerWrap.innerHTML = pcbUrl
+      ? `<iframe src="${pcbUrl}" class="w-full h-full border-0" allowfullscreen title="3D PCB Viewer"></iframe>`
+      : `<span class="text-zinc-400 text-sm">No PCB viewer URL provided</span>`;
+
+    schematicsWrap.innerHTML = schematicsUrl
+      ? `<iframe src="${schematicsUrl}" class="w-full h-full border-0" title="Schematics"></iframe>`
+      : `<span class="text-zinc-400 text-sm">No schematics URL provided</span>`;
+  }
+
+  // ── Journal (dynamic rebuild) ─────────────────────────
+  function _buildJournal(entries) {
+    const list = document.getElementById("journal-list");
+    if (!entries || entries.length === 0) {
+      list.innerHTML = `<p class="text-sm text-zinc-400 py-6 text-center">No journal entries yet.</p>`;
+      return;
+    }
+
+    list.innerHTML = entries.map((e, i) => `
+      <div class="flex gap-4 items-start py-5 border-b border-zinc-100 last:border-0">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">
+            Entry ${i + 1}${e.date ? " · " + e.date : ""}
+          </p>
+          <p class="text-sm text-zinc-600 leading-relaxed">${e.text ?? ""}</p>
+        </div>
+        ${e.videoUrl ? `
+          <div class="shrink-0 w-36">
+            <div class="aspect-video bg-zinc-100 rounded-xl overflow-hidden">
+              <iframe src="${e.videoUrl}" class="w-full h-full border-0" allow="autoplay; fullscreen" allowfullscreen title="Build video ${i + 1}"></iframe>
+            </div>
+            <p class="text-xs text-zinc-400 text-center mt-1">Build video ${i + 1}</p>
+          </div>
+        ` : ""}
+      </div>
+    `).join("");
+  }
+</script>
