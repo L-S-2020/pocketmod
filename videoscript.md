@@ -3,7 +3,7 @@ Since years, pcs and laptop have become one of the most useful tool for makers l
 But during the time their features and functionality didn't really much change.
 
 Didn't you also sometimes thought of a cool feature you want your laptop to have, 
-like a heartrate sensor to check if your still alive after a night of gaming or a geiger counter to find out if your room is polluted by radiation
+like a heartrate sensor to check if your still alive after a night of gaming or a gas sensor to find out if someone next to you -you know-
 or maybe a gps tracker to find your laptop when you lost it.
 
 All of these and many more could be created by you.
